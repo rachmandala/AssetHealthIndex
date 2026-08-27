@@ -1,0 +1,11 @@
+asset_id,asset_name,asset_type,location,manufacturer,criticality,status,commissioning_date
+GEN001,Generator 1,Generator,Plant A,GE,High,Active,2018-01-15
+GEN002,Generator 2,Generator,Plant A,Mitsubishi,High,Active,2019-03-20
+GEN003,Generator 3,Generator,Plant B,Siemens,Medium,Active,2020-05-10
+GEN004,Generator 4,Generator,Plant B,GE,Medium,Active,2021-07-18
+GEN005,Generator 5,Generator,Plant C,Siemens,Low,Active,2022-09-01
+GEN006,Generator 6,Generator,Plant C,GE,Medium,Active,2019-11-05
+GEN007,Generator 7,Generator,Plant A,Mitsubishi,High,Active,2017-06-22
+GEN008,Generator 8,Generator,Plant B,Siemens,Medium,Active,2020-12-30
+GEN009,Generator 9,Generator,Plant C,GE,Low,Active,2023-02-14
+GEN010,Generator 10,Generator,Plant A,Mitsubishi,Medium,Active,2021-04-09

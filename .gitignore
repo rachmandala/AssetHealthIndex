@@ -36,9 +36,8 @@ htmlcov/
 .mypy_cache/
 .ruff_cache/
 
-# Data (raw/processed operational data must not be committed)
-data/raw/*
-!data/raw/.gitkeep
+# Raw datasets are the source of truth for this project and are tracked.
+# Processed/exported outputs and model artifacts are pipeline-regenerable.
 data/processed/*
 !data/processed/.gitkeep
 data/exports/*

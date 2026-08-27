@@ -68,6 +68,12 @@ class MahalanobisHealthModel:
         assert self._covariance is not None
         return self._covariance.copy()
 
+    @property
+    def inv_covariance_matrix(self) -> np.ndarray:
+        self._ensure_fitted()
+        assert self._inv_covariance is not None
+        return self._inv_covariance.copy()
+
     def fit_healthy_baseline(self, X_healthy: np.ndarray) -> "MahalanobisHealthModel":
         """Fit the healthy baseline mean vector and covariance matrix.
 
