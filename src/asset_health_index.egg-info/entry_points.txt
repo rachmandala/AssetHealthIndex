@@ -1,0 +1,2 @@
+[console_scripts]
+ahi-pipeline = asset_health_index.cli:main
