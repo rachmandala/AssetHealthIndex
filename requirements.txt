@@ -5,6 +5,10 @@ scipy>=1.11
 scikit-learn>=1.4
 matplotlib>=3.8
 
+# Interactive visualization / Excel export
+plotly>=5.20
+openpyxl>=3.1
+
 # Data modeling & configuration
 pydantic>=2.6
 pyyaml>=6.0

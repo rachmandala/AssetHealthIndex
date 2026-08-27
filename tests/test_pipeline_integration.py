@@ -91,3 +91,11 @@ def test_powerbi_exports_written(pipeline_result) -> None:
 
     fact_df = pd.read_csv(common.EXPORTS_DIR / "fact_asset_health_assessment.csv")
     assert len(fact_df) == 10
+
+
+def test_visualization_exports_written(pipeline_result) -> None:
+    visualization_paths = pipeline_result["visualization_paths"]
+    assert visualization_paths["html"].exists()
+    assert visualization_paths["excel"].exists()
+    assert visualization_paths["html"].stat().st_size > 0
+    assert visualization_paths["excel"].stat().st_size > 0

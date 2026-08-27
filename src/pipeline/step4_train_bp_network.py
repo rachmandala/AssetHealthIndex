@@ -35,7 +35,7 @@ logger = get_logger(__name__)
 
 def run_bp_training(
     clean_df: pd.DataFrame, preprocessor: Preprocessor
-) -> tuple[BPNeuralNetworkModel, dict]:
+) -> tuple[BPNeuralNetworkModel, dict, dict]:
     """Train and evaluate the BP Neural Network condition classifier.
 
     Args:
@@ -44,7 +44,9 @@ def run_bp_training(
         preprocessor: Fitted :class:`Preprocessor` from Step 2.
 
     Returns:
-        A tuple of ``(trained_model, metrics_dict)``.
+        A tuple of ``(trained_model, metrics_dict, split_info)``. ``split_info``
+        contains the stratified train/test arrays and predicted labels for
+        both splits, for use by downstream visualization steps.
     """
     X = preprocessor.transform(clean_df)
     y = clean_df["label"].to_numpy()
@@ -56,6 +58,7 @@ def run_bp_training(
 
     X_train, X_test, y_train, y_test = pipeline.split_data(X, y)
     y_pred = model.predict(X_test)
+    y_train_pred = model.predict(X_train)
 
     precision, recall, f1, _ = precision_recall_fscore_support(
         y_test, y_pred, average="macro", zero_division=0
@@ -94,7 +97,15 @@ def run_bp_training(
     plt.close(disp.figure_)
     logger.info("Saved confusion matrix image to '%s'.", CONFUSION_MATRIX_IMAGE_PATH)
 
-    return model, metrics
+    split_info = {
+        "labels": evaluation["labels"],
+        "y_train": y_train,
+        "y_train_pred": y_train_pred,
+        "y_test": y_test,
+        "y_test_pred": y_pred,
+    }
+
+    return model, metrics, split_info
 
 
 if __name__ == "__main__":

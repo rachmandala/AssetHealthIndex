@@ -4,7 +4,7 @@ Runs the full Han et al. (2023) methodology over the raw datasets in
 ``data/raw/``: validation -> preprocessing -> healthy baseline -> BP
 Neural Network training -> Mahalanobis Distance scoring -> Health Index /
 AHI calculation -> BP predictions -> health classification and
-recommendation -> Power BI export.
+recommendation -> Power BI export -> visualization export.
 
 Usage:
     python -m src.pipeline.run_pipeline
@@ -24,6 +24,7 @@ from src.pipeline.step8_classify_and_recommend import (
     run_classification_and_recommendation,
 )
 from src.pipeline.step9_export_powerbi import run_powerbi_export
+from src.pipeline.step10_generate_visualizations import run_visualization_export
 from src.utils.logger import get_logger, setup_logging
 
 logger = get_logger(__name__)
@@ -43,7 +44,7 @@ def run_full_pipeline() -> dict:
     run_baseline_creation(clean_df, preprocessor)
 
     logger.info("=== Step 4: BP Neural Network training ===")
-    _, metrics = run_bp_training(clean_df, preprocessor)
+    _, metrics, split_info = run_bp_training(clean_df, preprocessor)
 
     logger.info("=== Step 5: Mahalanobis Distance scoring ===")
     md_scores_df = run_mahalanobis_scoring()
@@ -62,12 +63,16 @@ def run_full_pipeline() -> dict:
     logger.info("=== Step 9: Power BI dataset export ===")
     exported_paths = run_powerbi_export(assessments_df, MODEL_VERSION)
 
+    logger.info("=== Step 10: Visualization export (HTML + Excel) ===")
+    visualization_paths = run_visualization_export(split_info, ahi_scores_df)
+
     logger.info("=== Phase 2 pipeline complete ===")
     return {
         "validation_report": validation_report,
         "model_metrics": metrics,
         "assessments": assessments_df,
         "exported_paths": exported_paths,
+        "visualization_paths": visualization_paths,
     }
 
 
