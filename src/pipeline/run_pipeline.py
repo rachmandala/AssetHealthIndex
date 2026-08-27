@@ -12,6 +12,14 @@ Usage:
 
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
+# Allow running this file directly (e.g. VS Code "Run Python File"), not just
+# as a module, by ensuring the repo root is importable as the `src` package.
+if __name__ == "__main__" and __package__ in (None, ""):
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+
 from src.pipeline.step1_validate_data import run_validation
 from src.pipeline.step2_preprocess_data import run_preprocessing
 from src.pipeline.step3_build_healthy_baseline import run_baseline_creation
