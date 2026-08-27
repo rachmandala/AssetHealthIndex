@@ -41,7 +41,7 @@ def run_full_pipeline() -> dict:
     clean_df, preprocessor = run_preprocessing()
 
     logger.info("=== Step 3: Healthy baseline creation ===")
-    run_baseline_creation(clean_df, preprocessor)
+    baseline_model = run_baseline_creation(clean_df, preprocessor)
 
     logger.info("=== Step 4: BP Neural Network training ===")
     _, metrics, split_info = run_bp_training(clean_df, preprocessor)
@@ -64,7 +64,9 @@ def run_full_pipeline() -> dict:
     exported_paths = run_powerbi_export(assessments_df, MODEL_VERSION)
 
     logger.info("=== Step 10: Visualization export (HTML + Excel) ===")
-    visualization_paths = run_visualization_export(split_info, ahi_scores_df)
+    visualization_paths = run_visualization_export(
+        split_info, clean_df, preprocessor, baseline_model
+    )
 
     logger.info("=== Phase 2 pipeline complete ===")
     return {
