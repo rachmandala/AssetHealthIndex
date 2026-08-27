@@ -1,0 +1,112 @@
+project:
+  name: "Asset Health Index"
+  description: "Asset Health Index (AHI) platform for power generation assets, based on Han et al. (2023)."
+  version: "0.1.0"
+  environment: "development"
+
+paths:
+  raw_data_dir: "data/raw"
+  processed_data_dir: "data/processed"
+  exports_dir: "data/exports"
+  artifacts_dir: "artifacts"
+
+# ---------------------------------------------------------------------------
+# Model training configuration
+# ---------------------------------------------------------------------------
+model:
+  train_split: 0.60
+  test_split: 0.40
+  stratify: true
+  random_state: 42
+
+# ---------------------------------------------------------------------------
+# BP Neural Network (MLPClassifier) hyperparameters
+# ---------------------------------------------------------------------------
+bp_network:
+  hidden_layer_sizes: [20]
+  activation: "relu"
+  solver: "adam"
+  alpha: 0.0001
+  learning_rate_init: 0.001
+  max_iter: 1000
+  random_state: 42
+  early_stopping: false
+  classes:
+    - "Healthy"
+    - "Sub-Healthy"
+    - "Abnormal"
+    - "Fault"
+
+# ---------------------------------------------------------------------------
+# Mahalanobis Distance configuration
+# ---------------------------------------------------------------------------
+mahalanobis:
+  covariance_regularization: 0.0001
+  input_features:
+    - "speed"
+    - "frequency"
+    - "voltage"
+    - "current"
+    - "active_power"
+    - "reactive_power"
+    - "power_factor"
+
+# ---------------------------------------------------------------------------
+# Health Index configuration
+# ---------------------------------------------------------------------------
+health_index:
+  b: 0.5
+
+# ---------------------------------------------------------------------------
+# Health classification thresholds (AHI scale 0-100)
+# ---------------------------------------------------------------------------
+thresholds:
+  healthy: 90
+  subhealthy: 60
+  abnormal: 30
+
+# ---------------------------------------------------------------------------
+# Data validation configuration
+# ---------------------------------------------------------------------------
+validation:
+  ranges:
+    speed:
+      min: 0
+      max: 4000
+    frequency:
+      min: 45
+      max: 65
+    voltage:
+      min: 0
+      max: 30000
+    current:
+      min: 0
+      max: 10000
+    active_power:
+      min: -50
+      max: 1000
+    reactive_power:
+      min: -500
+      max: 500
+    power_factor:
+      min: -1.0
+      max: 1.0
+
+# ---------------------------------------------------------------------------
+# Preprocessing configuration
+# ---------------------------------------------------------------------------
+preprocessing:
+  outlier_method: "iqr"
+  outlier_iqr_multiplier: 1.5
+  missing_value_strategy: "median"
+  scaler_artifact_name: "feature_scaler.joblib"
+
+# ---------------------------------------------------------------------------
+# Power BI export configuration
+# ---------------------------------------------------------------------------
+exports:
+  fact_asset_health_assessment: "fact_asset_health_assessment.csv"
+  dim_asset: "dim_asset.csv"
+  dim_date: "dim_date.csv"
+  dim_health_status: "dim_health_status.csv"
+  dim_model_version: "dim_model_version.csv"
