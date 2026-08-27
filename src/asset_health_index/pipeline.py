@@ -47,6 +47,7 @@ class AHIPipeline:
         y = df["label"].astype(str).to_numpy()
         bp = BPNeuralNetwork(self.config["model"], random_state=int(self.config["random_state"]))
         metrics = bp.train(x, y)
+        bp.fit_full(x, y)
         bp.save(out_dir / "bp_model.joblib")
 
         healthy_label = self.labels_cfg["healthy"]
@@ -60,16 +61,19 @@ class AHIPipeline:
         bp_prediction = bp.predict(x)
         probabilities = bp.predict_proba(x)
 
-        proba_df = pd.DataFrame(probabilities, columns=[f"{c.lower().replace('-', '').replace(' ', '_')}_probability" for c in bp.model.classes_])
-        expected_cols = [
-            "healthy_probability",
-            "subhealthy_probability",
-            "abnormal_probability",
-            "fault_probability",
-        ]
+        canonical = {
+            self.labels_cfg["healthy"]: "healthy_probability",
+            self.labels_cfg["subhealthy"]: "subhealthy_probability",
+            self.labels_cfg["abnormal"]: "abnormal_probability",
+            self.labels_cfg["fault"]: "fault_probability",
+        }
+        proba_df = pd.DataFrame(index=df.index)
+        expected_cols = list(canonical.values())
         for col in expected_cols:
-            if col not in proba_df.columns:
-                proba_df[col] = 0.0
+            proba_df[col] = 0.0
+        for idx, class_name in enumerate(bp.model.classes_):
+            if class_name in canonical:
+                proba_df[canonical[class_name]] = probabilities[:, idx]
 
         md = mahalanobis_distance_batch(x, baseline)
         ahi = calculate_ahi(md=md, b=float(self.config["health_index"]["b"]))
@@ -90,7 +94,7 @@ class AHIPipeline:
         trend = self._build_trend(result)
         trend.to_csv(out_dir / "health_trends.csv", index=False)
 
-        powerbi = result.merge(trend, on=["asset_id", "timestamp"], how="left")
+        powerbi = result.merge(trend[["asset_id", "timestamp", "ahi_trend_rolling3"]], on=["asset_id", "timestamp"], how="left")
         powerbi.to_csv(out_dir / "powerbi_dataset.csv", index=False)
 
         with (out_dir / "model_evaluation.json").open("w", encoding="utf-8") as f:

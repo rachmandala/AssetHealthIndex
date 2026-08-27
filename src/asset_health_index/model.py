@@ -61,12 +61,16 @@ class BPNeuralNetwork:
     def predict_proba(self, x: np.ndarray) -> np.ndarray:
         return self.model.predict_proba(x)
 
+    def fit_full(self, x: np.ndarray, y: np.ndarray) -> None:
+        self.model.fit(x, y)
+
     def save(self, path: str | Path) -> None:
         Path(path).parent.mkdir(parents=True, exist_ok=True)
-        joblib.dump(self.model, path)
+        joblib.dump(self, path)
 
     @staticmethod
     def load(path: str | Path) -> "BPNeuralNetwork":
-        obj = BPNeuralNetwork({})
-        obj.model = joblib.load(path)
-        return obj
+        loaded = joblib.load(path)
+        if not isinstance(loaded, BPNeuralNetwork):
+            raise TypeError("Serialized model artifact is not a BPNeuralNetwork instance")
+        return loaded

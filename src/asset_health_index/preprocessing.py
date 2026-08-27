@@ -26,15 +26,20 @@ class Preprocessor:
         self.normalizer: MinMaxScaler | None = MinMaxScaler() if normalize else None
         self.scaler = StandardScaler()
         self.clip_bounds: dict[str, tuple[float, float]] = {}
+        self._is_fitted = False
 
     def fit_transform(self, df: pd.DataFrame) -> np.ndarray:
         clean = self._impute_and_clip(df.copy())
         x = clean[self.features].to_numpy(dtype=float)
         if self.normalizer is not None:
             x = self.normalizer.fit_transform(x)
-        return self.scaler.fit_transform(x)
+        transformed = self.scaler.fit_transform(x)
+        self._is_fitted = True
+        return transformed
 
     def transform(self, df: pd.DataFrame) -> np.ndarray:
+        if not self._is_fitted:
+            raise ValueError("Preprocessor must be fit before transform is called")
         clean = self._impute_and_clip(df.copy(), fit=False)
         x = clean[self.features].to_numpy(dtype=float)
         if self.normalizer is not None:
@@ -51,6 +56,8 @@ class Preprocessor:
                 low = float(df[col].quantile(low_q))
                 high = float(df[col].quantile(high_q))
                 self.clip_bounds[col] = (low, high)
+            elif col not in self.clip_bounds:
+                raise ValueError(f"Feature '{col}' was not present during preprocessor fitting")
             low, high = self.clip_bounds[col]
             df[col] = df[col].clip(lower=low, upper=high)
         return df
@@ -73,4 +80,5 @@ class Preprocessor:
         pre.normalizer = artifacts.normalizer
         pre.scaler = artifacts.scaler
         pre.clip_bounds = artifacts.clip_bounds
+        pre._is_fitted = True
         return pre

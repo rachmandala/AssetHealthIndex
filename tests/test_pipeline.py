@@ -1,4 +1,5 @@
 import pandas as pd
+from pathlib import Path
 
 from asset_health_index.pipeline import AHIPipeline
 
@@ -31,7 +32,8 @@ def test_pipeline_generates_expected_outputs(tmp_path):
     out_dir = tmp_path / "out"
     data.to_csv(input_csv, index=False)
 
-    pipeline = AHIPipeline(config_path="config/default.yaml")
+    config_path = Path(__file__).resolve().parents[1] / "config" / "default.yaml"
+    pipeline = AHIPipeline(config_path=config_path)
     pipeline.run(input_csv=input_csv, output_dir=out_dir)
 
     assert (out_dir / "predictions.csv").exists()
