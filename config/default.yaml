@@ -1,0 +1,41 @@
+random_state: 42
+labels:
+  healthy: Healthy
+  subhealthy: Sub-Healthy
+  abnormal: Abnormal
+  fault: Fault
+features:
+  - speed
+  - frequency
+  - voltage
+  - current
+  - active_power
+  - reactive_power
+  - power_factor
+validation:
+  ranges:
+    speed: [0, 10000]
+    frequency: [0, 1000]
+    voltage: [0, 50000]
+    current: [0, 10000]
+    active_power: [-100000, 100000]
+    reactive_power: [-100000, 100000]
+    power_factor: [-1, 1]
+preprocessing:
+  outlier_quantiles: [0.01, 0.99]
+  normalize: true
+model:
+  test_size: 0.4
+  hidden_layer_sizes: [32, 16]
+  activation: relu
+  solver: adam
+  alpha: 0.0001
+  learning_rate: adaptive
+  max_iter: 500
+health_index:
+  b: 0.1
+  covariance_regularization: 1.0e-6
+classification_thresholds:
+  healthy_gt: 90
+  subhealthy_gt: 60
+  abnormal_gt: 30
